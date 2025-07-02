@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> {
                                         bottomLeft: Radius.circular(8)),
                                     color: Colors.deepOrange,
                                   ),
-                                  child: Icon(Icons.favorite_border),
+                                  child: Icon(Icons.favorite_border,color: Colors.white,),
                                 ),
                               ),],
 
