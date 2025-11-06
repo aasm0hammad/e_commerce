@@ -17,7 +17,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       try {
         var res = await userRepo.registerUser(bodyParams: event.bodyParam);
         if (res["status"]) {
-          ///
           SharedPreferences pre=await SharedPreferences.getInstance();
           pre.setString("token", res["token"]);
 
@@ -38,6 +37,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       try{
         var res = await userRepo.loginUser(bodyParams: event.bodyParams);
         if(res['status']){
+          SharedPreferences pre=await SharedPreferences.getInstance();
+          pre.setString("token", res["tokan"]);
+
           emit(UserSuccessState());
           
         }else{

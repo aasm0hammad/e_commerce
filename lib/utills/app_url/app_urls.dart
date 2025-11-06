@@ -4,4 +4,5 @@ class AppUrls{
 
   static String registerUrl='${baseUrl}/ecommerce-api/user/registration';
   static String loginUrl='${baseUrl}/ecommerce-api/user/login';
+  static String productsUrl='${baseUrl}/ecommerce-api/products';
 }

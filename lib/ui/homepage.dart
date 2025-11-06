@@ -1,7 +1,15 @@
+import 'dart:math';
+
 import 'package:e_commerce/repository/widget/ui_helper.dart';
 import 'package:e_commerce/ui/detailspage.dart';
+import 'package:e_commerce/ui/login%20signup/loginsignup.dart';
+import 'package:e_commerce/ui/product/product%20bloc/product%20bloc.dart';
+import 'package:e_commerce/ui/product/product%20bloc/product%20event.dart';
+import 'package:e_commerce/ui/product/product%20bloc/product%20state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -73,7 +81,9 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+      context.read<ProductBloc>().add(GetAllProductEvent());
+      return Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -95,12 +105,17 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async{
+                         var pref=await SharedPreferences.getInstance();
+                           pref.remove("token");
+                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginSignUp()));
+
+                        },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: CircleBorder()),
                         child: Icon(
-                          Icons.doorbell,
+                          Icons.logout,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -197,7 +212,154 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: 16,
                   ),
-                  GridView.builder(
+                  BlocBuilder<ProductBloc,ProductState>(builder: (_,state){
+                    if(state is ProductLoadingState){
+                      return Center(child: CircularProgressIndicator(),);
+                    }
+
+                    if(state is ProductErrorsState){
+                      return Center(child: Text(state.msg),);
+                    }
+
+                    if(state is ProductLoadedState){
+                      print(state.products.length);
+                      return GridView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 20,
+                            crossAxisCount: 2,
+                          ),
+                          itemCount: state.products.length,
+                          itemBuilder: (context, index) {
+                            final product= state.products[index];
+                          // List<Color> colors = forYouItems[index]['color'];
+
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Detailspage(
+                                        title: product.name!,
+                                        price: product.price!,
+                                        colors: [],
+                                        image: product.image!,
+
+                                      ),
+                                    ));
+                              },
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(21),
+                                    border:
+                                    Border.all(color: Colors.grey, width: 1)),
+                                child: Stack(
+                                  children: [Column(
+                                    children: [
+
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.only(topRight: Radius.circular(21),topLeft: Radius.circular(21)),
+                                        child: Image.network(
+                                          product.image!,
+                                          height: 100,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                     /* UiHelper.customText(
+                                          text: product.name!,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Colors.black
+                                      ),*/
+                                      Text(
+                                        product.name!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 6,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            UiHelper.customText(
+                                                text: product.price!,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                            SizedBox(
+                                              height: 16,
+                                              width: 60,
+                                              child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection: Axis.horizontal,
+                                                  itemCount: 3,
+                                                  itemBuilder: (context, colorIndex) {
+                                                    return Column(
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                          const EdgeInsets.only(
+                                                              left: 5.0),
+                                                          child: Container(
+                                                            height: 16,
+                                                            width: 16,
+                                                            decoration: BoxDecoration(
+                                                                shape:
+                                                                BoxShape.circle,
+                                                                border: Border.all(
+                                                                    color:Colors.black,
+                                                                    width: 1),
+                                                                color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                                                                    ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(21),
+                                            bottomLeft: Radius.circular(8)),
+                                        color: Colors.deepOrange,
+                                      ),
+                                      child: Icon(Icons.favorite_border,color: Colors.white,),
+                                    ),
+                                  ),],
+
+                                ),
+                              ),
+                            );
+                          });
+                    }
+
+                   return Container();
+                  }),
+                 /* GridView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -314,11 +476,11 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         );
-                      })
+                      })*/
                 ],
               ),
             ),
           ),
         ),
-      );
+      );}
 }

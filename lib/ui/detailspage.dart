@@ -5,7 +5,8 @@ class Detailspage extends StatefulWidget {
   String title;
   String price;
   List colors;
-  Detailspage({super.key, required this.title,required this.price,required this.colors});
+  String image;
+  Detailspage({super.key, required this.title,required this.price,required this.colors,required this.image});
 
 
   @override
@@ -36,9 +37,10 @@ class _DetailspageState extends State<Detailspage> {
               Align(
                 alignment: Alignment.center,
                 child: Container(
-                  height: 200,
-                  width: 200,
-                  color: Color(0xffFF650E),
+                  height: 300,
+                  width: double.infinity,
+                  child: Image.network(widget.image,fit: BoxFit.cover,),
+
                 ),
               ),
               UiHelper.customText(text: widget.title, fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black),

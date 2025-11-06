@@ -203,16 +203,9 @@ class _SignUpState extends State<LoginSignUp> {
                                   if (state is UserSuccessState) {
                                     isLoading = false;
                                     ScaffoldMessenger.of(context)
-                                        .showMaterialBanner(MaterialBanner(
+                                        .showSnackBar(SnackBar(
                                             content: Text("Login SuccessFully.."),
-                                            actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                ScaffoldMessenger.of(context)
-                                                    .hideCurrentMaterialBanner();
-                                              },
-                                              child: Text("Dismiss"))
-                                        ]));
+                                           ));
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
